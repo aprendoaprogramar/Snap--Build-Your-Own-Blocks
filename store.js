@@ -397,14 +397,14 @@ SnapSerializer.prototype.rawLoadProjectModel = function (xmlNode) {
         project.pentrails.src = model.pentrails.contents;
     }
     project.stage.setTempo(model.stage.attributes.tempo);
-    StageMorph.prototype.dimensions = new Point(480, 360);
+    StageMorph.prototype.dimensions = new Point(Config.STAGE_WIDTH, Config.STAGE_HEIGHT);
     if (model.stage.attributes.width) {
         StageMorph.prototype.dimensions.x =
-            Math.max(+model.stage.attributes.width, 480);
+            Math.max(+model.stage.attributes.width, Config.STAGE_WIDTH);
     }
     if (model.stage.attributes.height) {
         StageMorph.prototype.dimensions.y =
-            Math.max(+model.stage.attributes.height, 180);
+            Math.max(+model.stage.attributes.height, Config.STAGE_HEIGHT/2);
     }
     project.stage.setExtent(StageMorph.prototype.dimensions);
     SpriteMorph.prototype.useFlatLineEnds =

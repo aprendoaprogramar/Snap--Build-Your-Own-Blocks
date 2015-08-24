@@ -1496,6 +1496,9 @@ SpriteMorph.prototype.drawNew = function () {
             origin = origin.min(point);
             corner = corner.max(point);
         });
+
+        stageScale *= Config.SPRITE_SCALE;
+
         costumeExtent = origin.corner(corner)
             .extent().multiplyBy(this.scale * stageScale);
 
@@ -4632,7 +4635,7 @@ StageMorph.uber = FrameMorph.prototype;
 
 // StageMorph preferences settings
 
-StageMorph.prototype.dimensions = new Point(480, 360); // unscaled extent
+StageMorph.prototype.dimensions = new Point(Config.STAGE_WIDTH, Config.STAGE_HEIGHT); // unscaled extent
 
 StageMorph.prototype.frameRate = 0; // unscheduled per default
 

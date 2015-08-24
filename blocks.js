@@ -2594,7 +2594,7 @@ BlockMorph.prototype.showHelp = function () {
             block.fullImage()
         );
     } else {
-        pic.src = 'help/' + spec + '.png';
+        pic.src = Config.BASE_PATH + 'help/' + spec + '.png';
     }
 };
 

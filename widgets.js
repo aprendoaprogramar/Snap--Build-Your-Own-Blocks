@@ -2295,6 +2295,7 @@ DialogBoxMorph.prototype.popUp = function (world) {
         }
         world.add(this);
         world.keyboardReceiver = this;
+        world.worldCanvas.style.zIndex = 1;
         this.setCenter(world.center());
         this.edit();
     }
@@ -2339,6 +2340,7 @@ DialogBoxMorph.prototype.destroy = function () {
     var world = this.world();
     world.keyboardReceiver = null;
     world.hand.destroyTemporaries();
+    world.worldCanvas.style.zIndex = 0;
     DialogBoxMorph.uber.destroy.call(this);
 };
 

@@ -109,8 +109,8 @@ IDE_Morph.uber = Morph.prototype;
 
 IDE_Morph.prototype.setDefaultDesign = function () {
     MorphicPreferences.isFlat = false;
-    SpriteMorph.prototype.paletteColor = new Color(55, 55, 55);
-    SpriteMorph.prototype.paletteTextColor = new Color(230, 230, 230);
+    SpriteMorph.prototype.paletteColor = new Color(59, 59, 59);
+    SpriteMorph.prototype.paletteTextColor = new Color(204, 204, 204);
     StageMorph.prototype.paletteTextColor
         = SpriteMorph.prototype.paletteTextColor;
     StageMorph.prototype.paletteColor = SpriteMorph.prototype.paletteColor;
@@ -118,11 +118,11 @@ IDE_Morph.prototype.setDefaultDesign = function () {
         = SpriteMorph.prototype.paletteColor.lighter(30);
 
     IDE_Morph.prototype.buttonContrast = 30;
-    IDE_Morph.prototype.backgroundColor = new Color(40, 40, 40);
+    IDE_Morph.prototype.backgroundColor = new Color(204, 204, 204);
     IDE_Morph.prototype.frameColor = SpriteMorph.prototype.paletteColor;
 
-    IDE_Morph.prototype.groupColor
-        = SpriteMorph.prototype.paletteColor.lighter(8);
+    IDE_Morph.prototype.barColor = new Color(38, 38, 38);
+    IDE_Morph.prototype.groupColor = new Color(83, 83, 83);
     IDE_Morph.prototype.sliderColor = SpriteMorph.prototype.sliderColor;
     IDE_Morph.prototype.buttonLabelColor = new Color(255, 255, 255);
     IDE_Morph.prototype.tabColors = [
@@ -132,7 +132,7 @@ IDE_Morph.prototype.setDefaultDesign = function () {
     ];
     IDE_Morph.prototype.rotationStyleColors = IDE_Morph.prototype.tabColors;
     IDE_Morph.prototype.appModeColor = new Color();
-    IDE_Morph.prototype.scriptsPaneTexture = this.scriptsTexture();
+    IDE_Morph.prototype.scriptsPaneTexture = null;
     IDE_Morph.prototype.padding = 5;
 
     SpriteIconMorph.prototype.labelColor
@@ -365,7 +365,7 @@ IDE_Morph.prototype.openIn = function (world) {
             }
             this.toggleAppMode(true);
             this.runScripts();
-        } else if (location.hash.substr(0, 9) === '#present:') {
+        } else if (Config.SHOW_CLOUD && location.hash.substr(0, 9) === '#present:') {
             this.shield = new Morph();
             this.shield.color = this.color;
             this.shield.setExtent(this.parent.extent());
@@ -419,7 +419,7 @@ IDE_Morph.prototype.openIn = function (world) {
                 },
                 this.cloudError()
             );
-        } else if (location.hash.substr(0, 7) === '#cloud:') {
+        } else if (Config.SHOW_CLOUD && location.hash.substr(0, 7) === '#cloud:') {
             this.shield = new Morph();
             this.shield.alpha = 0;
             this.shield.setExtent(this.parent.extent());
@@ -459,11 +459,11 @@ IDE_Morph.prototype.openIn = function (world) {
                 },
                 this.cloudError()
             );
-        } else if (location.hash.substr(0, 6) === '#lang:') {
+        } else if (Config.SHOW_LANG && location.hash.substr(0, 6) === '#lang:') {
             urlLanguage = location.hash.substr(6);
             this.setLanguage(urlLanguage);
             this.loadNewProject = true;
-        } else if (location.hash.substr(0, 7) === '#signup') {
+        } else if (Config.SHOW_CLOUD && location.hash.substr(0, 7) === '#signup') {
             this.createCloudAccount();
         }
     }
@@ -480,13 +480,13 @@ IDE_Morph.prototype.openIn = function (world) {
 IDE_Morph.prototype.buildPanes = function () {
     this.createLogo();
     this.createControlBar();
-    this.createCategories();
-    this.createPalette();
     this.createStage();
-    this.createSpriteBar();
-    this.createSpriteEditor();
     this.createCorralBar();
     this.createCorral();
+    this.createCategories();
+    this.createPalette();
+    this.createSpriteBar();
+    this.createSpriteEditor();
 };
 
 IDE_Morph.prototype.createLogo = function () {
@@ -497,10 +497,11 @@ IDE_Morph.prototype.createLogo = function () {
     }
 
     this.logo = new Morph();
-    this.logo.texture = 'snap_logo_sm.png';
+    this.logo.texture = Config.BASE_PATH + 'snap_logo_sm.png';
     this.logo.drawNew = function () {
         this.image = newCanvas(this.extent());
-        var context = this.image.getContext('2d'),
+        var context = this.image.getContext('2d');
+/*
             gradient = context.createLinearGradient(
                 0,
                 0,
@@ -511,6 +512,7 @@ IDE_Morph.prototype.createLogo = function () {
         gradient.addColorStop(0.5, myself.frameColor.toString());
         context.fillStyle = MorphicPreferences.isFlat ?
                 myself.frameColor.toString() : gradient;
+*/
         context.fillRect(0, 0, this.width(), this.height());
         if (this.texture) {
             this.drawTexture(this.texture);
@@ -532,7 +534,7 @@ IDE_Morph.prototype.createLogo = function () {
     };
 
     this.logo.color = new Color();
-    this.logo.setExtent(new Point(200, 28)); // dimensions are fixed
+    this.logo.setExtent(new Point(60, 28)); // dimensions are fixed
     this.add(this.logo);
 };
 
@@ -561,10 +563,10 @@ IDE_Morph.prototype.createControlBar = function () {
     }
 
     this.controlBar = new Morph();
-    this.controlBar.color = this.frameColor;
+    this.controlBar.color = this.barColor;
     this.controlBar.setHeight(this.logo.height()); // height is fixed
     this.controlBar.mouseClickLeft = function () {
-        this.world().fillPage();
+        // this.world().fillPage();
     };
     this.add(this.controlBar);
 
@@ -598,7 +600,7 @@ IDE_Morph.prototype.createControlBar = function () {
     button.refresh();
     stageSizeButton = button;
     this.controlBar.add(stageSizeButton);
-    this.controlBar.stageSizeButton = button; // for refreshing
+    this.controlBar.stageSizeButton = stageSizeButton; // for refreshing
 
     //appModeButton
     button = new ToggleButtonMorph(
@@ -730,7 +732,9 @@ IDE_Morph.prototype.createControlBar = function () {
     // button.hint = 'open, save, & annotate project';
     button.fixLayout();
     projectButton = button;
-    this.controlBar.add(projectButton);
+    if (Config.SHOW_CLOUD) {
+        this.controlBar.add(projectButton);
+    }
     this.controlBar.projectButton = projectButton; // for menu positioning
 
     // settingsButton
@@ -754,7 +758,9 @@ IDE_Morph.prototype.createControlBar = function () {
     // button.hint = 'edit settings';
     button.fixLayout();
     settingsButton = button;
-    this.controlBar.add(settingsButton);
+	  if (Config.SHOW_SETTINGS) {
+		    this.controlBar.add(settingsButton);
+    }
     this.controlBar.settingsButton = settingsButton; // for menu positioning
 
     // cloudButton
@@ -777,11 +783,14 @@ IDE_Morph.prototype.createControlBar = function () {
     // button.hint = 'cloud operations';
     button.fixLayout();
     cloudButton = button;
-    this.controlBar.add(cloudButton);
+	  if (Config.SHOW_CLOUD) {
+	      this.controlBar.add(cloudButton);
+    }
     this.controlBar.cloudButton = cloudButton; // for menu positioning
 
     this.controlBar.fixLayout = function () {
-        x = this.right() - padding;
+      x = (Config.SHOW_CLOUD || Config.SHOW_SETTINGS) ? this.right() - Config.PALETTE_WIDTH : this.right();
+      x -= padding;
         [stopButton, pauseButton, startButton].forEach(
             function (button) {
                 button.setCenter(myself.controlBar.center());
@@ -791,30 +800,42 @@ IDE_Morph.prototype.createControlBar = function () {
             }
         );
 
-        x = Math.min(
-            startButton.left() - (3 * padding + 2 * stageSizeButton.width()),
-            myself.right() - StageMorph.prototype.dimensions.x *
-                (myself.isSmallStage ? myself.stageRatio : 1)
-        );
-        [stageSizeButton, appModeButton].forEach(
-            function (button) {
-                x += padding;
-                button.setCenter(myself.controlBar.center());
-                button.setLeft(x);
-                x += button.width();
-            }
-        );
+      stageSizeButton.setCenter(myself.controlBar.center());
+      stageSizeButton.setLeft(this.left());
 
+      appModeButton.setCenter(myself.controlBar.center());
+      appModeButton.setLeft(stageSizeButton.right() + padding);
+
+      /*
+      x = myself.right() - (StageMorph.prototype.dimensions.x
+          * (myself.isSmallStage ? myself.stageRatio : 1));
+
+      [stageSizeButton, appModeButton].forEach(
+          function (button) {
+              x += padding;
+              button.setCenter(myself.controlBar.center());
+              button.setLeft(x);
+              x += button.width();
+          }
+      );
+      */
+
+      if (Config.SHOW_SETTINGS) {
         settingsButton.setCenter(myself.controlBar.center());
-        settingsButton.setLeft(this.left());
+        settingsButton.setRight(this.right() - padding);
+      }
 
+      if (Config.SHOW_CLOUD) {
         cloudButton.setCenter(myself.controlBar.center());
         cloudButton.setRight(settingsButton.left() - padding);
 
         projectButton.setCenter(myself.controlBar.center());
         projectButton.setRight(cloudButton.left() - padding);
+      }
 
-        this.updateLabel();
+      if (Config.SHOW_LABEL) {
+          this.updateLabel();
+      }
     };
 
     this.controlBar.updateLabel = function () {
@@ -842,7 +863,7 @@ IDE_Morph.prototype.createControlBar = function () {
         this.label.drawNew();
         this.add(this.label);
         this.label.setCenter(this.center());
-        this.label.setLeft(this.settingsButton.right() + padding);
+        this.label.setLeft(this.appModeButton.right() + padding);
     };
 };
 
@@ -854,8 +875,8 @@ IDE_Morph.prototype.createCategories = function () {
         this.categories.destroy();
     }
     this.categories = new Morph();
-    this.categories.color = this.groupColor;
-    this.categories.silentSetWidth(this.logo.width()); // width is fixed
+    this.categories.color = this.barColor;
+    this.categories.silentSetWidth(Config.PALETTE_WIDTH); // width is fixed
 
     function addCategoryButton(category) {
         var labelWidth = 75,
@@ -961,6 +982,15 @@ IDE_Morph.prototype.createPalette = function (forSearching) {
     this.palette.acceptsDrops = true;
     this.palette.contents.acceptsDrops = false;
 
+    this.palette.wantsDropOf = function (aMorph) {
+        if ((aMorph instanceof SpriteMorph) ||
+            (aMorph instanceof SpriteIconMorph) ||
+            (aMorph instanceof CostumeIconMorph)) {
+            return false;
+        }
+        return this.acceptsDrops;
+    };
+
     this.palette.reactToDropOf = function (droppedMorph) {
         if (droppedMorph instanceof DialogBoxMorph) {
             myself.world().add(droppedMorph);
@@ -977,7 +1007,7 @@ IDE_Morph.prototype.createPalette = function (forSearching) {
         }
     };
 
-    this.palette.setWidth(this.logo.width());
+    this.palette.setWidth(Config.PALETTE_WIDTH);
     this.add(this.palette);
     return this.palette;
 };
@@ -1103,7 +1133,9 @@ IDE_Morph.prototype.createSpriteBar = function () {
     nameField.setWidth(100); // fixed dimensions
     nameField.contrast = 90;
     nameField.setPosition(thumbnail.topRight().add(new Point(10, 3)));
-    this.spriteBar.add(nameField);
+	  if (Config.SHOW_SPRITEBAR_ITEMS) {
+    	  this.spriteBar.add(nameField);
+    }
     nameField.drawNew();
     nameField.accept = function () {
         var newName = nameField.getValue();
@@ -1142,22 +1174,26 @@ IDE_Morph.prototype.createSpriteBar = function () {
 
     padlock.setPosition(nameField.bottomLeft().add(2));
     padlock.drawNew();
-    this.spriteBar.add(padlock);
-    if (this.currentSprite instanceof StageMorph) {
+    if (Config.SHOW_SPRITEBAR_ITEMS) {
+		    this.spriteBar.add(padlock);
+    }
+	  if (this.currentSprite instanceof StageMorph) {
         padlock.hide();
     }
 
     // tab bar
     tabBar.tabTo = function (tabString) {
-        var active;
-        myself.currentTab = tabString;
-        this.children.forEach(function (each) {
-            each.refresh();
-            if (each.state) {active = each; }
-        });
-        active.refresh(); // needed when programmatically tabbing
-        myself.createSpriteEditor();
-        myself.fixLayout('tabEditor');
+        if (Config.SHOW_SPRITEBAR_ITEMS) {
+            var active;
+            myself.currentTab = tabString;
+            this.children.forEach(function (each) {
+                each.refresh();
+                if (each.state) {active = each; }
+            });
+            active.refresh(); // needed when programmatically tabbing
+            myself.createSpriteEditor();
+            myself.fixLayout('tabEditor');
+        }
     };
 
     tab = new TabMorph(
@@ -1222,8 +1258,9 @@ IDE_Morph.prototype.createSpriteBar = function () {
         each.refresh();
     });
     this.spriteBar.tabBar = tabBar;
-    this.spriteBar.add(this.spriteBar.tabBar);
-
+	  if (Config.SHOW_SPRITEBAR_ITEMS) {
+    	  this.spriteBar.add(this.spriteBar.tabBar);
+	  }
     this.spriteBar.fixLayout = function () {
         this.tabBar.setLeft(this.left());
         this.tabBar.setBottom(this.bottom());
@@ -1315,8 +1352,9 @@ IDE_Morph.prototype.createCorralBar = function () {
     this.corralBar = new Morph();
     this.corralBar.color = this.frameColor;
     this.corralBar.setHeight(this.logo.height()); // height is fixed
-    this.add(this.corralBar);
-
+	  if (Config.SHOW_CORRALBAR) {
+    	  this.add(this.corralBar);
+	  }
     // new sprite button
     newbutton = new PushButtonMorph(
         this,
@@ -1376,7 +1414,9 @@ IDE_Morph.prototype.createCorral = function () {
 
     this.corral = new Morph();
     this.corral.color = this.groupColor;
-    this.add(this.corral);
+	  if (Config.SHOW_CORRAL) {
+    	  this.add(this.corral);
+	  }
 
     this.corral.stageIcon = new SpriteIconMorph(this.stage);
     this.corral.stageIcon.isDraggable = false;
@@ -1476,66 +1516,73 @@ IDE_Morph.prototype.fixLayout = function (situation) {
     Morph.prototype.trackChanges = false;
 
     if (situation !== 'refreshPalette') {
-        // controlBar
-        this.controlBar.setPosition(this.logo.topRight());
-        this.controlBar.setWidth(this.right() - this.controlBar.left());
-        this.controlBar.fixLayout();
+      // stage
+      if (this.isAppMode) {
+        this.stage.setScale(Math.floor(Math.min(
+            (this.width() - padding * 2) / this.stage.dimensions.x,
+            (this.height() - this.controlBar.height() * 2 - padding * 2) / this.stage.dimensions.y
+        ) * 10) / 10);
+        this.stage.setCenter(this.center());
+      } else {
+        this.stage.setScale(this.isSmallStage ? this.stageRatio : 1);
+        this.stage.setTop(this.logo.bottom() + padding);
+        this.stage.setLeft(this.logo.left());
+      }
 
-        // categories
-        this.categories.setLeft(this.logo.left());
-        this.categories.setTop(this.logo.bottom());
+      // corralBar
+      this.corralBar.setLeft(this.stage.left());
+      this.corralBar.setTop(this.stage.bottom() + padding);
+      this.corralBar.setWidth(this.stage.width());
+
+      // corral
+      if (!contains(['selectSprite', 'tabEditor'], situation)) {
+        this.corral.setPosition(this.corralBar.bottomLeft());
+        this.corral.setWidth(this.stage.width());
+        this.corral.setHeight(this.bottom() - this.corral.top());
+        this.corral.fixLayout();
+      }
+
+      // categories
+      var spriteBarMinHeight = 65;
+      this.categories.setLeft(this.stage.right());
+      var categoriesTop = (Config.SHOW_CLOUD || Config.SHOW_SETTINGS) ? this.stage.top() : this.top();
+      this.categories.setTop(categoriesTop);
+      if (this.categories.bottom() < spriteBarMinHeight) {
+        this.categories.setHeight(spriteBarMinHeight);
+      }
+
+      // controlBar
+      // this.controlBar.setPosition(this.logo.topRight());
+      this.controlBar.setLeft(this.logo.width());
+      var controlBarWidth = this.stage.width() - this.logo.width();
+      if (Config.SHOW_CLOUD || Config.SHOW_SETTINGS) {
+        controlBarWidth += this.categories.width();
+      }
+      this.controlBar.setWidth(controlBarWidth);
+      this.controlBar.fixLayout();
     }
 
     // palette
-    this.palette.setLeft(this.logo.left());
+    this.palette.setLeft(this.stage.right());
     this.palette.setTop(this.categories.bottom());
     this.palette.setHeight(this.bottom() - this.palette.top());
+    this.palette.setWidth(this.categories.width());
 
     if (situation !== 'refreshPalette') {
-        // stage
-        if (this.isAppMode) {
-            this.stage.setScale(Math.floor(Math.min(
-                (this.width() - padding * 2) / this.stage.dimensions.x,
-                (this.height() - this.controlBar.height() * 2 - padding * 2)
-                    / this.stage.dimensions.y
-            ) * 10) / 10);
-            this.stage.setCenter(this.center());
-        } else {
-            this.stage.setScale(this.isSmallStage ? this.stageRatio : 1);
-            this.stage.setTop(this.logo.bottom() + padding);
-            this.stage.setRight(this.right());
-            this.stageHandle.fixLayout();
-        }
+      // spriteBar
+      this.spriteBar.setLeft(this.palette.right());
+      this.spriteBar.setHeight(this.categories.height());
+      this.spriteBar.setWidth(this.width() - this.categories.left());
+      this.spriteBar.fixLayout();
 
-        // spriteBar
-        this.spriteBar.setPosition(this.logo.bottomRight().add(padding));
-        this.spriteBar.setExtent(new Point(
-            Math.max(0, this.stage.left() - padding - this.spriteBar.left()),
-            this.categories.bottom() - this.spriteBar.top() - padding
+      // spriteEditor
+      if (this.spriteEditor.isVisible) {
+        this.spriteEditor.setPosition(this.spriteBar.bottomLeft());
+        this.spriteEditor.setExtent(new Point(
+          this.spriteBar.width(),
+            this.bottom() - this.spriteEditor.top()
         ));
-        this.spriteBar.fixLayout();
-
-        // spriteEditor
-        if (this.spriteEditor.isVisible) {
-            this.spriteEditor.setPosition(this.spriteBar.bottomLeft());
-            this.spriteEditor.setExtent(new Point(
-                this.spriteBar.width(),
-                this.bottom() - this.spriteEditor.top()
-            ));
-        }
-
-        // corralBar
-        this.corralBar.setLeft(this.stage.left());
-        this.corralBar.setTop(this.stage.bottom() + padding);
-        this.corralBar.setWidth(this.stage.width());
-
-        // corral
-        if (!contains(['selectSprite', 'tabEditor'], situation)) {
-            this.corral.setPosition(this.corralBar.bottomLeft());
-            this.corral.setWidth(this.stage.width());
-            this.corral.setHeight(this.bottom() - this.corral.top());
-            this.corral.fixLayout();
-        }
+      }
     }
 
     Morph.prototype.trackChanges = true;
@@ -1553,42 +1600,19 @@ IDE_Morph.prototype.setProjectName = function (string) {
 IDE_Morph.prototype.setExtent = function (point) {
     var padding = new Point(430, 110),
         minExt,
-        ext,
-        maxWidth,
-        minWidth,
-        maxHeight,
-        minRatio,
-        maxRatio;
+        ext;
 
     // determine the minimum dimensions making sense for the current mode
     if (this.isAppMode) {
         minExt = StageMorph.prototype.dimensions.add(
-            this.controlBar.height() + 10
+          this.controlBar.height() + 10
         );
     } else {
-        if (this.stageRatio > 1) {
-            minExt = padding.add(StageMorph.prototype.dimensions);
-        } else {
-            minExt = padding.add(
-                StageMorph.prototype.dimensions.multiplyBy(this.stageRatio)
-            );
-        }
+        minExt = this.isSmallStage ?
+          padding.add(StageMorph.prototype.dimensions.divideBy(2))
+          : padding.add(StageMorph.prototype.dimensions);
     }
     ext = point.max(minExt);
-
-    // adjust stage ratio if necessary
-    maxWidth = ext.x - (this.spriteBar.tabBar.fullBounds().right() -
-        this.left());
-    minWidth = SpriteIconMorph.prototype.thumbSize.x * 3;
-    maxHeight = (ext.y - SpriteIconMorph.prototype.thumbSize.y * 3.5);
-    minRatio = minWidth / this.stage.dimensions.x;
-    maxRatio = Math.min(
-        (maxWidth / this.stage.dimensions.x),
-        (maxHeight / this.stage.dimensions.y)
-    );
-    this.stageRatio = Math.min(maxRatio, Math.max(minRatio, this.stageRatio));
-
-    // apply
     IDE_Morph.uber.setExtent.call(this, ext);
     this.fixLayout();
 };
@@ -1597,6 +1621,19 @@ IDE_Morph.prototype.setExtent = function (point) {
 
 IDE_Morph.prototype.reactToWorldResize = function (rect) {
     if (this.isAutoFill) {
+        var worldMorph = this.parent;
+        var parentWidth = worldMorph.worldCanvas.parentElement.offsetWidth;
+        worldMorph.worldCanvas.width = parentWidth;
+        worldMorph.setWidth(parentWidth);
+
+        var height = rect.corner.y - worldMorph.worldCanvas.parentElement.offsetTop;
+        // height-= 5;
+
+        worldMorph.worldCanvas.height = height;
+        worldMorph.setHeight(height);
+        // rect = new Rectangle(0, 0, canvasWidth, canvasHeight);
+        rect.corner.x = parentWidth;
+        rect.corner.y = height;
         this.setPosition(rect.origin);
         this.setExtent(rect.extent());
     }
@@ -1917,9 +1954,11 @@ IDE_Morph.prototype.addNewSprite = function () {
     // randomize sprite properties
     sprite.setHue(rnd.call(this, 0, 100));
     sprite.setBrightness(rnd.call(this, 50, 100));
-    sprite.turn(rnd.call(this, 1, 360));
-    sprite.setXPosition(rnd.call(this, -220, 220));
-    sprite.setYPosition(rnd.call(this, -160, 160));
+    // sprite.turn(rnd.call(this, 1, 360));
+	  var xPosition = Config.STAGE_WIDTH / 2 - 20;
+    sprite.setXPosition(rnd.call(this, -xPosition, xPosition));
+    var yPosition = Config.STAGE_HEIGHT / 2 - 20;
+    sprite.setYPosition(rnd.call(this, -yPosition, yPosition));
 
     this.sprites.add(sprite);
     this.corral.addSprite(sprite);
@@ -2017,43 +2056,45 @@ IDE_Morph.prototype.snapMenu = function () {
     menu.addItem(
         'Reference manual',
         function () {
-            window.open('help/SnapManual.pdf', 'SnapReferenceManual');
+            window.open(Config.BASE_PATH + 'help/SnapManual.pdf', 'SnapReferenceManual');
         }
     );
-    menu.addItem(
-        'Snap! website',
-        function () {
-            window.open('http://snap.berkeley.edu/', 'SnapWebsite');
-        }
-    );
-    menu.addItem(
-        'Download source',
-        function () {
-            window.open(
-                'http://snap.berkeley.edu/snapsource/snap.zip',
-                'SnapSource'
+    if (Config.SHOW_SNAP_MENU_ITEMS) {   
+        menu.addItem(
+            'Snap! website',
+            function () {
+                window.open('http://snap.berkeley.edu/', 'SnapWebsite');
+            }
+        );
+        menu.addItem(
+            'Download source',
+            function () {
+                window.open(
+                    'http://snap.berkeley.edu/snapsource/snap.zip',
+                    'SnapSource'
+                );
+            }
+        );
+        if (world.isDevMode) {
+            menu.addLine();
+            menu.addItem(
+                'Switch back to user mode',
+                'switchToUserMode',
+                'disable deep-Morphic\ncontext menus'
+                    + '\nand show user-friendly ones',
+                new Color(0, 100, 0)
+            );
+        } else if (world.currentKey === 16) { // shift-click
+            menu.addLine();
+            menu.addItem(
+                'Switch to dev mode',
+                'switchToDevMode',
+                'enable Morphic\ncontext menus\nand inspectors,'
+                    + '\nnot user-friendly!',
+                new Color(100, 0, 0)
             );
         }
-    );
-    if (world.isDevMode) {
-        menu.addLine();
-        menu.addItem(
-            'Switch back to user mode',
-            'switchToUserMode',
-            'disable deep-Morphic\ncontext menus'
-                + '\nand show user-friendly ones',
-            new Color(0, 100, 0)
-        );
-    } else if (world.currentKey === 16) { // shift-click
-        menu.addLine();
-        menu.addItem(
-            'Switch to dev mode',
-            'switchToDevMode',
-            'enable Morphic\ncontext menus\nand inspectors,'
-                + '\nnot user-friendly!',
-            new Color(100, 0, 0)
-        );
-    }
+	  }
     menu.popup(world, this.logo.bottomLeft());
 };
 
@@ -2898,7 +2939,7 @@ IDE_Morph.prototype.newProject = function () {
     this.globalVariables = new VariableFrame();
     this.currentSprite = new SpriteMorph(this.globalVariables);
     this.sprites = new List([this.currentSprite]);
-    StageMorph.prototype.dimensions = new Point(480, 360);
+    StageMorph.prototype.dimensions = new Point(Config.STAGE_WIDTH, Config.STAGE_HEIGHT);
     StageMorph.prototype.hiddenPrimitives = {};
     StageMorph.prototype.codeMappings = {};
     StageMorph.prototype.codeHeaders = {};
@@ -3550,7 +3591,7 @@ IDE_Morph.prototype.toggleAppMode = function (appMode) {
 
 IDE_Morph.prototype.toggleStageSize = function (isSmall) {
     var myself = this,
-        smallRatio = 0.5,
+        smallRatio = 2/3,
         world = this.world(),
         shiftClicked = (world.currentKey === 16),
         altClicked = (world.currentKey === 18);
@@ -3581,6 +3622,7 @@ IDE_Morph.prototype.toggleStageSize = function (isSmall) {
         };
     }
 
+    /*
     if (shiftClicked) {
         smallRatio = SpriteIconMorph.prototype.thumbSize.x * 3 /
             this.stage.dimensions.x;
@@ -3596,6 +3638,9 @@ IDE_Morph.prototype.toggleStageSize = function (isSmall) {
     } else {
         toggle();
     }
+    */
+    toggle();
+
     if (this.isAnimating) {
         if (this.isSmallStage) {
             zoomTo(smallRatio);
@@ -3809,7 +3854,7 @@ IDE_Morph.prototype.userSetStageSize = function () {
     ).promptVector(
         "Stage size",
         StageMorph.prototype.dimensions,
-        new Point(480, 360),
+        new Point(Config.STAGE_WIDTH, Config.STAGE_HEIGHT),
         'Stage width',
         'Stage height',
         this.world(),
@@ -3821,7 +3866,7 @@ IDE_Morph.prototype.userSetStageSize = function () {
 IDE_Morph.prototype.setStageExtent = function (aPoint) {
     var myself = this,
         world = this.world(),
-        ext = aPoint.max(new Point(480, 180));
+        ext = aPoint.max(new Point(Config.STAGE_WIDTH, Config.STAGE_HEIGHT));
 
     function zoom() {
         myself.step = function () {
