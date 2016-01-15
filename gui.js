@@ -3282,6 +3282,18 @@ IDE_Morph.prototype.rawOpenBlocksString = function (str, name, silently) {
     }
 };
 
+IDE_Morph.prototype.silentOpenBlocksString = function (str) {
+  var myself = this;
+  var blocks = this.serializer.loadBlocks(str, myself.stage);
+  blocks.forEach(function (def) {
+    def.receiver = myself.stage;
+    myself.stage.globalBlocks.push(def);
+    myself.stage.replaceDoubleDefinitionsFor(def);
+  });
+  this.flushPaletteCache();
+  this.refreshPalette();
+};
+
 IDE_Morph.prototype.openSpritesString = function (str) {
     var msg,
         myself = this;
