@@ -261,7 +261,7 @@ IDE_Morph.prototype.init = function (isAutoFill) {
     this.color = this.backgroundColor;
 };
 
-IDE_Morph.prototype.openIn = function (world) {
+IDE_Morph.prototype.openIn = function (world, maxHeight) {
     var hash, usr, myself = this, urlLanguage = null;
 
     // get persistent user data, if any
@@ -306,7 +306,7 @@ IDE_Morph.prototype.openIn = function (world) {
         }
     };
 
-    this.reactToWorldResize(world.bounds);
+    this.reactToWorldResize(world.bounds, maxHeight);
 
     function getURL(url) {
         try {
@@ -1619,7 +1619,7 @@ IDE_Morph.prototype.setExtent = function (point) {
 
 // IDE_Morph events
 
-IDE_Morph.prototype.reactToWorldResize = function (rect) {
+IDE_Morph.prototype.reactToWorldResize = function (rect, maxHeight) {
     if (this.isAutoFill) {
         var worldMorph = this.parent;
         var parentWidth = worldMorph.worldCanvas.parentElement.offsetWidth;
@@ -1627,7 +1627,9 @@ IDE_Morph.prototype.reactToWorldResize = function (rect) {
         worldMorph.setWidth(parentWidth);
 
         var height = rect.corner.y - worldMorph.worldCanvas.parentElement.offsetTop;
-        // height-= 5;
+        if (maxHeight !== undefined) {
+          height = Math.min(height, maxHeight);
+        }
 
         worldMorph.worldCanvas.height = height;
         worldMorph.setHeight(height);
