@@ -131,7 +131,7 @@ IDE_Morph.prototype.setDefaultDesign = function () {
         IDE_Morph.prototype.groupColor
     ];
     IDE_Morph.prototype.rotationStyleColors = IDE_Morph.prototype.tabColors;
-    IDE_Morph.prototype.appModeColor = new Color();
+    IDE_Morph.prototype.appModeColor = new Color(54, 67, 71);
     IDE_Morph.prototype.scriptsPaneTexture = null;
     IDE_Morph.prototype.padding = 5;
 
